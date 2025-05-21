@@ -18,3 +18,7 @@ Nome: UniChat
 
 4. Menssagem
     - Classe para representar mensagens (pode incluir remetente, TipoConteúdo(msg ou arquivo))
+
+///////////////
+PROX:
+Criar Cliente (23:20)

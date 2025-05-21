@@ -8,6 +8,7 @@ import java.awt.Color;
 import javax.swing.BorderFactory;
 import java.io.File;
 import javax.swing.JFileChooser;
+import javax.swing.JScrollPane;
 
 public class PanelChat extends JPanel {
     private JTextField textField;
@@ -21,12 +22,15 @@ public class PanelChat extends JPanel {
         headerLabel.setBounds(0, 7, 600, 48);
         add(headerLabel);
 
-        JPanel panel = new JPanel();
-        panel.setBounds(10, 59, 580, 470);
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        add(panel);
-        panel.setLayout(null);
+        JPanel panelCen = new JPanel();
+        panelCen.setBackground(Color.WHITE);
+        panelCen.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        panelCen.setLayout(null);
+
+        JScrollPane scrollPane = new JScrollPane(panelCen);
+        scrollPane.setBounds(10, 59, 580, 470);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        add(scrollPane);
 
         JButton btnEnviar = new JButton("ENVIAR");
         btnEnviar.setBounds(523, 539, 67, 35);
