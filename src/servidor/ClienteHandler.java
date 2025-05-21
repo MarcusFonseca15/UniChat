@@ -1,3 +1,5 @@
+package servidor;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -31,30 +33,29 @@ public class ClienteHandler extends Thread {
             BufferedReader leitor = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             escritor = new PrintWriter(socket.getOutputStream(), true);
 
-            listaEscritores.add(escritor); // sempre que cliente conecta, add o escritor na lista
-
             synchronized (listaEscritores) { // evita que dois clientes usam a lista ao mesmo tempo
-                listaEscritores.add(escritor);
+                listaEscritores.add(escritor); // sempre que cliente conecta, add o escritor na lista
+
             }
 
             String nome = leitor.readLine();
-            transmitir(nome + " entrou no chat");
-            System.out.println(nome + " conectou no servidor");
+            transmitir("[" + nome + "]" + " entrou no chat");
+            System.out.println("[" + nome + "]" + " conectou no servidor");
 
             // agora que o cliente entrou, ele pode mandar mensagem
 
             String msg;
 
             while ((msg = leitor.readLine()) != null) { // enqt ele nao envia nada, ele espera o comando de entrada
-                transmitir(nome + ": " + msg); // Fulano: Bom dia
+                transmitir("[" + nome + "]" + ": " + msg); // Fulano: Bom dia
 
                 // SAIR DO CHAT
                 if (msg.equals("//sair")) {
                     synchronized (listaEscritores) {
                         listaEscritores.remove(escritor);
                     }
-                    transmitir(nome + " saiu do chat");
-                    System.out.println(nome + " desconectou do servidor");
+                    transmitir("[" + nome + "]" + " saiu do chat");
+                    System.out.println("[" + nome + "]" + " desconectou do servidor");
 
                     break;
 

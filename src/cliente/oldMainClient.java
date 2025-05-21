@@ -1,3 +1,8 @@
+package cliente;
+
+import visual.FrameChat;
+import visual.PanelChat;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -5,7 +10,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Main {
+public class oldMainClient {
     public static void main(String[] args) {
 
         System.out.println("Digite seu nome:");
@@ -29,12 +34,14 @@ public class Main {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                    System.out.println("Socket já fechado.");
                 }
             });
             receptor.start(); // inicia a thread pra escutar o servidor
 
             // Prepara pra enviar mensagens
             while (true) {
+                Thread.sleep(3000); // delay de 3 segundos entre msgs
                 System.out.println("Digite sua mensagem:");
                 String msg = scanner.nextLine();
 
@@ -47,6 +54,8 @@ public class Main {
                 // a msg vai pro servidor
             }
             receptor.interrupt(); // interrompe a thread de escuta
+            socket.close();
+            scanner.close();
             System.out.println("Você saiu do chat.");
 
         } catch (Exception e) {

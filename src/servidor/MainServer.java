@@ -1,10 +1,12 @@
+package servidor;
+
 import java.net.ServerSocket;
 import java.util.HashSet;
 import java.util.Set;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class Main {
+public class MainServer {
 
     private static final int PORTA = 8089;
 
@@ -14,10 +16,10 @@ public class Main {
 
         try (ServerSocket server = new ServerSocket(PORTA)) {
 
-            System.out.println("Servidor rodando na porta " + PORTA);
+            System.out.println("\nServidor rodando na porta " + PORTA);
 
             while (true) {
-                Thread.sleep(3000); // delay de 3 segundos entre msgs
+
                 new ClienteHandler(
                         server.accept(),
                         escritores).start(); // Cria um novo cliente e herda de thread
@@ -28,11 +30,11 @@ public class Main {
             // como preciso saber quem são os outros clientes, preciso criar uma lista de
             // escritores
 
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Erro ao criar o servidor.");
         }
 
-        FrameChat frame = new FrameChat();
+        // FrameChat frame = new FrameChat();
     }
 }
