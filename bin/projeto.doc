@@ -1,0 +1,20 @@
+Nome: UniChat
+
+1. ChatServer
+    - Responsável por aceitar conexões de clientes.
+    - Mantém uma lista de clientes conectados.
+    - Encaminha mensagens recebidas de um cliente para os outros clientes.
+    - Fecha conexões quando necessário.
+
+2. ChatClient
+    - Conecta ao servidor usando socket.
+    - Envia mensagens para o servidor.
+    - Recebe mensagens do servidor e exibe para o usuário.
+
+3. ClientHandler (usada pelo servidor)
+    - Uma thread para cada cliente conectado.
+    - Lê mensagens do cliente e repassa para o servidor.
+    - Fecha a conexão quando o cliente desconecta.
+
+4. Menssagem
+    - Classe para representar mensagens (pode incluir remetente, TipoConteúdo(msg ou arquivo))
