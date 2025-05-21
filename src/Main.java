@@ -17,6 +17,7 @@ public class Main {
             System.out.println("Servidor rodando na porta " + PORTA);
 
             while (true) {
+                Thread.sleep(3000); // delay de 3 segundos entre msgs
                 new ClienteHandler(
                         server.accept(),
                         escritores).start(); // Cria um novo cliente e herda de thread
@@ -27,7 +28,7 @@ public class Main {
             // como preciso saber quem são os outros clientes, preciso criar uma lista de
             // escritores
 
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             System.out.println("Erro ao criar o servidor.");
         }
