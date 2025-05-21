@@ -28,6 +28,12 @@ public class PanelChat extends JPanel {
         this.escritor = escritor;
     }
 
+    private String nomeUsuario;
+
+    public void setNomeUsuario(String nomeUsuario) {
+        this.nomeUsuario = nomeUsuario;
+    }
+
     public PanelChat() {
         setLayout(null);
         setBackground(new Color(0, 150, 215));
@@ -86,12 +92,24 @@ public class PanelChat extends JPanel {
     }
 
     public void addMensagem(String texto, boolean enviada) {
+
+        // Limpa a mensagem pra comparar o nome do usuário
+        String textoFormatado = texto.toLowerCase().replaceAll("[\\[\\]\\s]", ""); // remove colchetes e espaços
+        String nomeFormatado = nomeUsuario.toLowerCase();
+
+        // Evita mostrar mensagem recebida que já foi enviada localmente (proprio
+        // usuario)
+        if (!enviada && textoFormatado.contains(nomeFormatado)) {
+            return; // ignora
+        }
+
         JLabel msgLabel = new JLabel(texto);
         msgLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         msgLabel.setOpaque(true);
         msgLabel.setBackground(enviada ? new Color(0, 200, 100) : new Color(230, 230, 230));
         msgLabel.setForeground(Color.BLACK);
         msgLabel.setBounds(enviada ? 180 : 10, yAtual, 380, 20);
+
         panelCen.add(msgLabel);
         panelCen.revalidate();
         panelCen.repaint();

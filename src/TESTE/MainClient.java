@@ -29,6 +29,7 @@ public class MainClient {
             FrameChat frame = new FrameChat(); // Janela principal
             PanelChat panel = frame.getPanel(); // Recupera o painel
             panel.setEscritor(escritor); // Permite enviar mensagens pelo botão
+            panel.setNomeUsuario(nome);
 
             // 4. Criar thread para ESCUTAR mensagens do servidor
             Thread receptor = new Thread(() -> {
