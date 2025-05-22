@@ -21,17 +21,15 @@ public class MainClient {
             BufferedReader leitor = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter escritor = new PrintWriter(socket.getOutputStream(), true);
 
-            // pergunta o nome
             String nome = JOptionPane.showInputDialog(null, "Digite seu nome:");
             escritor.println(nome); // envia o nome pro servidor
 
-            ////////////////////////
             FrameChat frame = new FrameChat();
             PanelChat panel = frame.getPanel();
-            panel.setEscritor(escritor); // envia msg pelo butao
+            panel.setEscritor(escritor);
             panel.setNomeUsuario(nome);
 
-            // thread pa ESCUTAR mensagens do servidor
+            // thread para ESCUTAR mensagens do servidor
             Thread receptor = new Thread(() -> {
                 try {
                     String msg;
@@ -43,7 +41,7 @@ public class MainClient {
                 }
             });
 
-            receptor.start();
+            receptor.start(); // inicia thread que escuta o servidor
 
         } catch (Exception e) {
             e.printStackTrace();
