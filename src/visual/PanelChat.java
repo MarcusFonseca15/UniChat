@@ -40,7 +40,7 @@ public class PanelChat extends JPanel {
         setLayout(null);
         setBackground(new Color(123, 124, 206));
 
-        JLabel headerLabel = new JLabel("Bem-vindo ao UniChat!");
+        JLabel headerLabel = new JLabel("UniChat!");
         headerLabel.setFont(new Font("Segoe UI", Font.BOLD | Font.ITALIC, 32));
         headerLabel.setHorizontalAlignment(SwingConstants.CENTER);
         headerLabel.setBounds(0, 7, 600, 48);
