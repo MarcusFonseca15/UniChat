@@ -17,7 +17,7 @@ public class MainClient {
 
         try {
             // Conectar ao servidor
-            Socket socket = new Socket("localhost", 8089);
+            Socket socket = new Socket("192.168.1.2", 8089);
             BufferedReader leitor = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter escritor = new PrintWriter(socket.getOutputStream(), true);
 

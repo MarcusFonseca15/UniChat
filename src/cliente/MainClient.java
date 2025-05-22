@@ -16,12 +16,11 @@ public class MainClient {
     public static void main(String[] args) {
 
         try {
-            //Conectar ao servidor
-            Socket socket = new Socket("localhost", 8089);
+            // Conectar ao servidor
+            Socket socket = new Socket("192.168.1.2", 8089);
             BufferedReader leitor = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter escritor = new PrintWriter(socket.getOutputStream(), true);
 
-    
             String nome = JOptionPane.showInputDialog(null, "Digite seu nome:");
             escritor.println(nome); // envia o nome pro servidor
 
@@ -30,7 +29,7 @@ public class MainClient {
             panel.setEscritor(escritor);
             panel.setNomeUsuario(nome);
 
-            //thread para ESCUTAR mensagens do servidor
+            // thread para ESCUTAR mensagens do servidor
             Thread receptor = new Thread(() -> {
                 try {
                     String msg;

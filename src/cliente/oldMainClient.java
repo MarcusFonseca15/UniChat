@@ -17,7 +17,7 @@ public class oldMainClient {
         Scanner scanner = new Scanner(System.in);
         String nome = scanner.nextLine();
 
-        try (Socket socket = new Socket("localhost", 8089);
+        try (Socket socket = new Socket("192.168.1.2", 8089);
                 BufferedReader leitor = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter escritor = new PrintWriter(socket.getOutputStream(), true);
 
