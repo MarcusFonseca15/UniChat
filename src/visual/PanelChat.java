@@ -42,6 +42,8 @@ public class PanelChat extends JPanel {
         this.nomeUsuario = nomeUsuario.toUpperCase();
     }
 
+    private static final Color verdeClaro = new Color(0, 255, 102);
+
     public PanelChat() {
         setLayout(null);
         setBackground(SystemColor.control);
@@ -66,7 +68,7 @@ public class PanelChat extends JPanel {
         this.btnEnviar = new JButton("ENVIAR");
         btnEnviar.setBounds(515, 539, 75, 35);
         btnEnviar.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        btnEnviar.setBackground(new Color(0, 255, 102));
+        btnEnviar.setBackground(verdeClaro);
         btnEnviar.setForeground(new Color(0, 0, 0));
         add(btnEnviar);
         btnEnviar.addActionListener(e -> {
@@ -91,7 +93,7 @@ public class PanelChat extends JPanel {
         inputField.setBackground(new Color(255, 255, 255));
         // inputField.setText(" Clique aqui para digitar sua mensagem...");
         inputField.setForeground(new Color(0, 0, 0));
-        
+
         inputField.addActionListener(e -> btnEnviar.doClick());
 
         JButton btnSelectFile = new JButton("File");
@@ -123,7 +125,7 @@ public class PanelChat extends JPanel {
         JLabel msgLabel = new JLabel(texto);
         msgLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         msgLabel.setOpaque(true);
-        msgLabel.setBackground(new Color(0, 255, 102));
+        msgLabel.setBackground(enviada ? verdeClaro : new Color(166, 166, 166));
         msgLabel.setForeground(new Color(0, 0, 0));
         msgLabel.setBounds(enviada ? 180 : 10, yAtual, 380, 20);
 
