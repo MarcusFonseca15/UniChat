@@ -30,12 +30,12 @@ public class MainClient {
             DataInputStream in = new DataInputStream(socket.getInputStream());
 
             String nome = JOptionPane.showInputDialog(null, "Digite seu nome:");
-            out.writeUTF(nome); // envia o nome pro servidor
+            out.writeUTF(nome.toUpperCase()); // envia o nome pro servidor
 
             FrameChat frame = new FrameChat();
             PanelChat panel = frame.getPanel();
             panel.setOutput(out);
-            panel.setNomeUsuario(nome);
+            panel.setNomeUsuario(nome.toUpperCase());
 
             // Thread pra ESCUTAR mensagens
             Thread receptor = new Thread(() -> {

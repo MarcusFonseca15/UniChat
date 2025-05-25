@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import javax.swing.JFileChooser;
 import javax.swing.JScrollPane;
 import java.awt.Dimension;
+import java.awt.SystemColor;
 
 //
 public class PanelChat extends JPanel {
@@ -38,22 +39,22 @@ public class PanelChat extends JPanel {
     private String nomeUsuario;
 
     public void setNomeUsuario(String nomeUsuario) {
-        this.nomeUsuario = nomeUsuario;
+        this.nomeUsuario = nomeUsuario.toUpperCase();
     }
 
     public PanelChat() {
         setLayout(null);
-        setBackground(new Color(123, 124, 206));
+        setBackground(SystemColor.control);
 
         JLabel headerLabel = new JLabel("UniChat!");
         headerLabel.setFont(new Font("Segoe UI", Font.BOLD | Font.ITALIC, 32));
         headerLabel.setHorizontalAlignment(SwingConstants.CENTER);
         headerLabel.setBounds(0, 7, 600, 48);
-        headerLabel.setForeground(Color.WHITE);
+        headerLabel.setForeground(SystemColor.desktop);
         add(headerLabel);
 
         this.panelCen = new JPanel();
-        panelCen.setBackground(new Color(51, 51, 51));
+        panelCen.setBackground(SystemColor.text);
         panelCen.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         panelCen.setLayout(null);
 
@@ -63,10 +64,10 @@ public class PanelChat extends JPanel {
         add(scrollPane);
 
         this.btnEnviar = new JButton("ENVIAR");
-        btnEnviar.setBounds(523, 539, 67, 35);
-        btnEnviar.setFont(new Font("Segoe UI", Font.PLAIN, 8));
-        btnEnviar.setBackground(Color.WHITE);
-        btnEnviar.setForeground(Color.BLACK);
+        btnEnviar.setBounds(515, 539, 75, 35);
+        btnEnviar.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        btnEnviar.setBackground(new Color(0, 255, 102));
+        btnEnviar.setForeground(new Color(0, 0, 0));
         add(btnEnviar);
         btnEnviar.addActionListener(e -> {
             String msg = inputField.getText().trim();
@@ -84,15 +85,18 @@ public class PanelChat extends JPanel {
         });
 
         this.inputField = new JTextField();
-        inputField.setBounds(75, 539, 438, 35);
+        inputField.setBounds(75, 539, 430, 35);
         add(inputField);
         inputField.setColumns(10);
-        inputField.setBackground(new Color(51, 51, 51));
+        inputField.setBackground(new Color(255, 255, 255));
         // inputField.setText(" Clique aqui para digitar sua mensagem...");
-        inputField.setForeground(Color.WHITE);
+        inputField.setForeground(new Color(0, 0, 0));
+        
+        inputField.addActionListener(e -> btnEnviar.doClick());
 
-        JButton btnSelectFile = new JButton("");
-        btnSelectFile.setBounds(26, 543, 21, 21);
+        JButton btnSelectFile = new JButton("File");
+        btnSelectFile.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        btnSelectFile.setBounds(10, 539, 55, 35);
         add(btnSelectFile);
 
         btnSelectFile.addActionListener(e -> {
@@ -107,20 +111,20 @@ public class PanelChat extends JPanel {
     public void addMensagem(String texto, boolean enviada) {
 
         // LIMPA MSG PRA COLOCAR NOME DO USER
-        String textoFormatado = texto.toLowerCase().replaceAll("[\\[\\]\\s]", ""); // remove colchetes e espaços
-        String nomeFormatado = nomeUsuario.toLowerCase();
+        String textoFormatado = texto.toUpperCase().replaceAll("[\\[\\]\\s]", ""); // remove colchetes e espaços
+        String nomeFormatado = nomeUsuario.toUpperCase();
 
         // Evita mostrar mensagem recebida que já foi enviada localmente (proprio
         // usuario)
-        if (!enviada && texto.startsWith("[" + nomeUsuario + "]")) {
+        if (!enviada && texto.startsWith("[" + nomeUsuario.toUpperCase() + "]")) {
             return; // ignora
         }
 
         JLabel msgLabel = new JLabel(texto);
         msgLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         msgLabel.setOpaque(true);
-        msgLabel.setBackground(enviada ? new Color(66, 133, 244) : new Color(86, 94, 117));
-        msgLabel.setForeground(enviada ? Color.BLACK : Color.WHITE);
+        msgLabel.setBackground(new Color(0, 255, 102));
+        msgLabel.setForeground(new Color(0, 0, 0));
         msgLabel.setBounds(enviada ? 180 : 10, yAtual, 380, 20);
 
         panelCen.add(msgLabel);
