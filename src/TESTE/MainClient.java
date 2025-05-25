@@ -15,7 +15,7 @@ import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import javax.swing.JOptionPane;
-
+import javax.swing.SwingUtilities;
 import javax.swing.JOptionPane;
 
 public class MainClient {
@@ -40,17 +40,21 @@ public class MainClient {
             // Thread de ESCUTAR mensagens
             Thread receptor = new Thread(() -> {
                 try {
-                    String msg;
-                    while ((msg = in.readUTF()) != null) {
-                        final String mensagemFinal = msg;
-                        javax.swing.SwingUtilities.invokeLater(() -> {
-                            panel.addMensagem(mensagemFinal, false);
-                        });
+                    while (true) {
+                        String tipo = in.readUTF();
+
+                        if (tipo.equals("MSG")) {
+                            String msg = in.readUTF();
+                            SwingUtilities.invokeLater(() -> {
+                                panel.addMensagem(msg, false);
+                            });
+                        }
                     }
                 } catch (IOException e) {
                     System.out.println("Conexão encerrada.");
                 }
             });
+
 
             receptor.start();
 
