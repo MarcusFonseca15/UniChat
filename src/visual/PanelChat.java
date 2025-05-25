@@ -8,7 +8,10 @@ import javax.swing.JButton;
 import javax.swing.JTextField;
 import java.awt.Color;
 import javax.swing.BorderFactory;
+
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import javax.swing.JFileChooser;
@@ -26,8 +29,10 @@ public class PanelChat extends JPanel {
 
     private PrintWriter escritor;
 
-    public void setEscritor(PrintWriter escritor) {
-        this.escritor = escritor;
+    private DataOutputStream output;
+
+    public void setOutput(DataOutputStream output) {
+        this.output = output;
     }
 
     private String nomeUsuario;
@@ -65,12 +70,16 @@ public class PanelChat extends JPanel {
         add(btnEnviar);
         btnEnviar.addActionListener(e -> {
             String msg = inputField.getText().trim();
-            if (!msg.isEmpty()) {
-                addMensagem(msg, true);
-                if (escritor != null) {
-                    escritor.println(msg);
+            if (output != null && !msg.isEmpty()) {
+                try {
+                    String msgFormatada = "[" + nomeUsuario + "] " + msg;
+                    output.writeUTF(msgFormatada);
+                    output.flush();
+                    addMensagem(msgFormatada, true); // Exibir localmente
+                    inputField.setText(""); // LIMPAR
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
-                inputField.setText("");
             }
         });
 
@@ -97,7 +106,7 @@ public class PanelChat extends JPanel {
 
     public void addMensagem(String texto, boolean enviada) {
 
-        // Limpa a mensagem pra comparar o nome do usuário
+        // LIMPA MSG PRA COLOCAR NOME DO USER
         String textoFormatado = texto.toLowerCase().replaceAll("[\\[\\]\\s]", ""); // remove colchetes e espaços
         String nomeFormatado = nomeUsuario.toLowerCase();
 

@@ -1,40 +1,64 @@
 package servidor;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
-import java.util.HashSet;
-import java.util.Set;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MainServer {
-
-    private static final int PORTA = 8089;
-
-    private static Set<PrintWriter> escritores = new HashSet<>(); // lista de escritores para saber quem são os clientes
+    private static final int PORTA = 12345;
+    private static final List<DataOutputStream> clientes = new CopyOnWriteArrayList<>();
 
     public static void main(String[] args) {
-
-        try (ServerSocket server = new ServerSocket(PORTA)) {
-
-            System.out.println("\nServidor rodando na porta " + PORTA);
+        try (ServerSocket servidor = new ServerSocket(PORTA)) {
+            System.out.println("Servidor iniciado na porta " + PORTA);
 
             while (true) {
+                Socket cliente = servidor.accept();
+                System.out.println("Cliente conectou: " + cliente.getInetAddress());
 
-                new ClienteHandler(
-                        server.accept(),
-                        escritores).start(); // Cria um novo cliente e herda de thread
+                DataOutputStream out = new DataOutputStream(cliente.getOutputStream());
+                clientes.add(out);
 
-                // sempre que um cliente chegar, passo a lista de escritores
+                Thread threadCliente = new Thread(() -> {
+                    try {
+                        DataInputStream in = new DataInputStream(cliente.getInputStream());
+
+                        while (true) {
+                            String mensagem = in.readUTF();
+                            System.out.println("Receb" + cliente.getInetAddress() + ":" + mensagem);
+
+                            // Envia pra todos
+                            for (DataOutputStream o : clientes) {
+                                try {
+                                    o.writeUTF(mensagem);
+                                    o.flush();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+                    } catch (Exception e) {
+                        System.out.println("Cliente desconectou:" + cliente.getInetAddress());
+                    } finally {
+                        try {
+                            clientes.remove(out);
+                            cliente.close();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+
+                threadCliente.start();
             }
 
-            // como preciso saber quem são os outros clientes, preciso criar uma lista de
-            // escritores
-
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Erro ao criar o servidor.");
         }
-
-        // FrameChat frame = new FrameChat();
     }
 }
