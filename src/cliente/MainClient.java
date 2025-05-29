@@ -5,6 +5,8 @@ import visual.PanelChat;
 
 import java.awt.Desktop;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -13,11 +15,7 @@ import java.util.Scanner;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.net.InetAddress;
-import java.net.Socket;
-import javax.swing.JOptionPane;
-
 import javax.swing.JOptionPane;
 
 public class MainClient {
@@ -32,7 +30,9 @@ public class MainClient {
             DataInputStream in = new DataInputStream(socket.getInputStream());
 
             String nome = JOptionPane.showInputDialog(null, "Digite seu nome:");
-            out.writeUTF(nome.toUpperCase());
+            if (nome == null || nome.trim().isEmpty()) {
+                nome = "Usuario";
+            }
 
             FrameChat frame = new FrameChat();
             PanelChat panel = frame.getPanel();
@@ -45,33 +45,17 @@ public class MainClient {
                 recebidosDir.mkdir();
             }
 
-            // 🎧 Thread para escutar mensagens
+            // 🎧 Thread para escutar mensagens e arquivos
             Thread receptor = new Thread(() -> {
                 try {
-                    String msg;
-                    while ((msg = in.readUTF()) != null) {
-                        final String mensagemFinal = msg;
-
-                        javax.swing.SwingUtilities.invokeLater(() -> {
-                            panel.addMensagem(mensagemFinal, false);
-
-                            // Detectar se é um arquivo recebido
-                            if (mensagemFinal.startsWith("[ARQUIVO RECEBIDO]")) {
-                                String nomeArquivo = mensagemFinal.replace("[ARQUIVO RECEBIDO]", "").trim();
-                                File arquivo = new File("recebidos", nomeArquivo); // agora com subpasta
-
-                                if (arquivo.exists()) {
-                                    try {
-                                        Desktop.getDesktop().open(arquivo);
-                                    } catch (IOException ex) {
-                                        ex.printStackTrace();
-                                        JOptionPane.showMessageDialog(null, "Erro ao abrir o arquivo: " + nomeArquivo);
-                                    }
-                                } else {
-                                    System.out.println("Arquivo não encontrado: " + arquivo.getAbsolutePath());
-                                }
-                            }
-                        });
+                    while (true) {
+                        String tipo = in.readUTF();
+                        
+                        if ("TEXTO".equals(tipo)) {
+                            processarMensagemTexto(in, panel);
+                        } else if ("ARQUIVO".equals(tipo)) {
+                            processarArquivoRecebido(in, panel, recebidosDir);
+                        }
                     }
 
                 } catch (IOException e) {
@@ -85,5 +69,76 @@ public class MainClient {
             e.printStackTrace();
         }
     }
+    
+    private static void processarMensagemTexto(DataInputStream in, PanelChat panel) {
+        try {
+            String mensagem = in.readUTF();
+            
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                panel.addMensagem(mensagem, false);
+            });
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static void processarArquivoRecebido(DataInputStream in, PanelChat panel, File recebidosDir) {
+        try {
+            // Lê informações do arquivo
+            String nomeArquivo = in.readUTF();
+            long tamanhoArquivo = in.readLong();
+            
+            System.out.println("Recebendo arquivo: " + nomeArquivo + " (" + tamanhoArquivo + " bytes)");
+            
+            // Salva o arquivo na pasta recebidos
+            File arquivo = new File(recebidosDir, nomeArquivo);
+            
+            try (FileOutputStream fos = new FileOutputStream(arquivo)) {
+                byte[] buffer = new byte[4096];
+                long bytesRestantes = tamanhoArquivo;
+                
+                while (bytesRestantes > 0) {
+                    int bytesParaLer = (int) Math.min(buffer.length, bytesRestantes);
+                    int bytesLidos = in.read(buffer, 0, bytesParaLer);
+                    
+                    if (bytesLidos == -1) {
+                        throw new IOException("Conexão interrompida durante a transferência do arquivo");
+                    }
+                    
+                    fos.write(buffer, 0, bytesLidos);
+                    bytesRestantes -= bytesLidos;
+                }
+            }
+            
+            System.out.println("Arquivo salvo: " + arquivo.getAbsolutePath());
+            
+            // Exibe a mensagem no chat
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                String mensagemArquivo = "📎 Arquivo recebido: " + nomeArquivo;
+                panel.addMensagem(mensagemArquivo, false);
+                
+                // Pergunta se quer abrir o arquivo
+                int resposta = JOptionPane.showConfirmDialog(
+                    null, 
+                    "Arquivo recebido: " + nomeArquivo + "\nDeseja abrir?", 
+                    "Arquivo Recebido", 
+                    JOptionPane.YES_NO_OPTION
+                );
+                
+                if (resposta == JOptionPane.YES_OPTION) {
+                    try {
+                        Desktop.getDesktop().open(arquivo);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(null, "Erro ao abrir o arquivo: " + nomeArquivo);
+                    }
+                }
+            });
+            
+        } catch (IOException e) {
+            System.err.println("Erro ao receber arquivo: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }
-

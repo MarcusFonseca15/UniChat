@@ -11,15 +11,17 @@ import javax.swing.BorderFactory;
 
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import java.awt.Dimension;
 import java.awt.SystemColor;
 
-//
 public class PanelChat extends JPanel {
     private JTextField textField;
     private JPanel panelCen;
@@ -29,7 +31,6 @@ public class PanelChat extends JPanel {
     private JTextField inputField;
 
     private PrintWriter escritor;
-
     private DataOutputStream output;
 
     public void setOutput(DataOutputStream output) {
@@ -71,27 +72,13 @@ public class PanelChat extends JPanel {
         btnEnviar.setBackground(verdeClaro);
         btnEnviar.setForeground(new Color(0, 0, 0));
         add(btnEnviar);
-        btnEnviar.addActionListener(e -> {
-            String msg = inputField.getText().trim();
-            if (output != null && !msg.isEmpty()) {
-                try {
-                    String msgFormatada = "[" + nomeUsuario + "] " + msg;
-                    output.writeUTF(msgFormatada);
-                    output.flush();
-                    addMensagem(msgFormatada, true); // Exibir localmente
-                    inputField.setText(""); // LIMPAR
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
+        btnEnviar.addActionListener(e -> enviarMensagem());
 
         this.inputField = new JTextField();
         inputField.setBounds(75, 539, 430, 35);
         add(inputField);
         inputField.setColumns(10);
         inputField.setBackground(new Color(255, 255, 255));
-        // inputField.setText(" Clique aqui para digitar sua mensagem...");
         inputField.setForeground(new Color(0, 0, 0));
 
         inputField.addActionListener(e -> btnEnviar.doClick());
@@ -101,23 +88,81 @@ public class PanelChat extends JPanel {
         btnSelectFile.setBounds(10, 539, 55, 35);
         add(btnSelectFile);
 
-        btnSelectFile.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            int result = fileChooser.showOpenDialog(this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
+        btnSelectFile.addActionListener(e -> selecionarEEnviarArquivo());
+    }
+
+    private void enviarMensagem() {
+        String msg = inputField.getText().trim();
+        if (output != null && !msg.isEmpty()) {
+            try {
+                String msgFormatada = "[" + nomeUsuario + "] " + msg;
+                
+                // Envia o tipo de dados (TEXTO)
+                output.writeUTF("TEXTO");
+                output.writeUTF(msgFormatada);
+                output.flush();
+                
+                addMensagem(msgFormatada, true); // Exibir localmente
+                inputField.setText(""); // LIMPAR
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Erro ao enviar mensagem: " + ex.getMessage());
             }
-        });
+        }
+    }
+
+    private void selecionarEEnviarArquivo() {
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(this);
+        
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            
+            // Verificar tamanho do arquivo (limite de 10MB)
+            if (selectedFile.length() > 10 * 1024 * 1024) {
+                JOptionPane.showMessageDialog(this, "Arquivo muito grande! Limite: 10MB");
+                return;
+            }
+            
+            enviarArquivo(selectedFile);
+        }
+    }
+
+    private void enviarArquivo(File arquivo) {
+        try {
+            // Indica que está enviando um arquivo
+            output.writeUTF("ARQUIVO");
+            
+            // Envia informações do arquivo
+            output.writeUTF(arquivo.getName());
+            output.writeLong(arquivo.length());
+            
+            // Envia o conteúdo do arquivo
+            try (FileInputStream fis = new FileInputStream(arquivo)) {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                
+                while ((bytesRead = fis.read(buffer)) != -1) {
+                    output.write(buffer, 0, bytesRead);
+                }
+            }
+            
+            output.flush();
+            
+            // Exibe mensagem local de que o arquivo foi enviado
+            String msgArquivo = "[" + nomeUsuario + "] 📎 Arquivo enviado: " + arquivo.getName();
+            addMensagem(msgArquivo, true);
+            
+            JOptionPane.showMessageDialog(this, "Arquivo enviado com sucesso!");
+            
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erro ao enviar arquivo: " + ex.getMessage());
+        }
     }
 
     public void addMensagem(String texto, boolean enviada) {
-
-        // LIMPA MSG PRA COLOCAR NOME DO USER
-        String textoFormatado = texto.toUpperCase().replaceAll("[\\[\\]\\s]", ""); // remove colchetes e espaços
-        String nomeFormatado = nomeUsuario.toUpperCase();
-
-        // Evita mostrar mensagem recebida que já foi enviada localmente (proprio
-        // usuario)
+        // Evita mostrar mensagem recebida que já foi enviada localmente (proprio usuario)
         if (!enviada && texto.startsWith("[" + nomeUsuario.toUpperCase() + "]")) {
             return; // ignora
         }
@@ -137,7 +182,5 @@ public class PanelChat extends JPanel {
 
         yAtual += 25; // sobe o y para a prox msg
         panelCen.setPreferredSize(new Dimension(560, yAtual));
-
     }
-
 }
